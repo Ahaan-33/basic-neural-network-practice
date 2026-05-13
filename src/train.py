@@ -74,4 +74,24 @@ plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.title('Training Loss Curve')
 plt.grid(True)
-plt.show()
+
+
+
+#evaluate the model on the test dataset
+model.eval()  # Set the model to evaluation mode
+correct = 0
+total = 0
+with torch.no_grad():
+    for images, labels in test_loader:
+        outputs = model(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+accuracy = correct / total
+print(f'Test Accuracy: {accuracy:.4f}')
+
+
+#model done! lets save it
+torch.save(model.state_dict(), 'shape_classifier.pth')
+print("Model saved successfully as shape_classifier.pth")
+
