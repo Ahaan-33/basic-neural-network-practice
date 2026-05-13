@@ -33,7 +33,7 @@ print(label)
 print(image.shape)
 plt.imshow(image.squeeze(), cmap='gray')
 plt.title(f'Label: {class_names[label]}')
-plt.show()
+#plt.show()
 
 
 
