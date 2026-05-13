@@ -40,3 +40,5 @@ if __name__ == "__main__":
     print("Output shape:", output.shape)  # Should be [1, 2]
     print("Output:", output)
 
+#Training the model will be done in train.py, this file is just for defining the model structure and testing it with dummy data.
+

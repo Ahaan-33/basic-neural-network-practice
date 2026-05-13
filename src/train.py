@@ -1,5 +1,5 @@
-import torch
 from torchvision import datasets, transforms
+import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -35,5 +35,36 @@ plt.imshow(image.squeeze(), cmap='gray')
 plt.title(f'Label: {class_names[label]}')
 #plt.show()
 
+#separating and shuffling training and testing datasets
+from sklearn.model_selection import train_test_split
+train_dataset, test_dataset = train_test_split(dataset, test_size=0.2, random_state=42)
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
+#Creating training loop
+from model import ShapeClassifier
+model = ShapeClassifier()
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.01)
+num_epochs = 10
+loss_values = []
+for epoch in range(num_epochs):
+    running_loss = 0.0
+    for images, labels in train_loader:
+        optimizer.zero_grad()  # Zero the parameter gradients
+        outputs = model(images)  # Forward pass
+        loss = criterion(outputs, labels)  # Compute loss
+        loss.backward()  # Backward pass
+        optimizer.step()  # Update weights
+        running_loss += loss.item()
+    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss/len(dataloader):.4f}')
+
+#analyse the results by plotting the loss curve
+loss_values.append(running_loss/len(dataloader))
+
+plt.plot(loss_values)
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.title('Training Loss')
+plt.show()
 
