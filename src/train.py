@@ -25,29 +25,34 @@ for images, labels in dataloader:
     break
 
 #to check if both classes are present in the dataset
-class_names = dataset.classes
-print(class_names)
-print(dataset.class_to_idx)
-image, label = dataset[150] # Get a sample image and its label
-print(label)
-print(image.shape)
-plt.imshow(image.squeeze(), cmap='gray')
-plt.title(f'Label: {class_names[label]}')
+#class_names = dataset.classes
+#print(class_names)
+#print(dataset.class_to_idx)
+#image, label = dataset[150] # Get a sample image and its label
+#print(label)
+#print(image.shape)
+
+#plt.imshow(image.squeeze(), cmap='gray')
+#lt.title(f'Label: {class_names[label]}')
 #plt.show()
 
-#separating and shuffling training and testing datasets
-from sklearn.model_selection import train_test_split
-train_dataset, test_dataset = train_test_split(dataset, test_size=0.2, random_state=42)
+#separating and shuffling training and testing datasets using pytorch's random_split function
+from torch.utils.data import random_split
+train_size = int(0.8 * len(dataset))
+test_size = len(dataset) - train_size
+train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
 #Creating training loop
 from model import ShapeClassifier
+
 model = ShapeClassifier()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.01)
 num_epochs = 10
 loss_values = []
+model.train() # Set the model to training mode
 for epoch in range(num_epochs):
     running_loss = 0.0
     for images, labels in train_loader:
@@ -57,14 +62,16 @@ for epoch in range(num_epochs):
         loss.backward()  # Backward pass
         optimizer.step()  # Update weights
         running_loss += loss.item()
-    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss/len(dataloader):.4f}')
+    avg_loss = running_loss / len(train_loader)
+    loss_values.append(avg_loss)
+    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.4f}')
 
-#analyse the results by plotting the loss curve
-loss_values.append(running_loss/len(dataloader))
-
-plt.plot(loss_values)
+# create loss curve over epochs after training
+epochs = range(1, num_epochs + 1)
+plt.figure()
+plt.plot(epochs, loss_values, marker='o')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
-plt.title('Training Loss')
+plt.title('Training Loss Curve')
+plt.grid(True)
 plt.show()
-
